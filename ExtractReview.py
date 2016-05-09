@@ -34,11 +34,11 @@ class naiveBayes:
 
     def outputReviewsCSV(self,jsonFile, outputCSV, businessId, dictKeys):
         csvReviewFile = open(outputCSV, 'w')
-        csvFileWriter = csv.writer(csvReviewFile)
+        #csvFileWriter = csv.writer(csvReviewFile)
         with open(jsonFile,'rb') as jsonFile:
             for line in jsonFile:
                 json_data = ujson.loads(line)
-                currentData = []
+               
                 if json_data['business_id'] in businessId:
                     for key in dictKeys:
                         if isinstance(json_data[key],basestring):
@@ -50,11 +50,14 @@ class naiveBayes:
                                     
                                 filteredString = ' '.join(filtered_word_list)
                                 filteredString = re.sub('[^A-Za-z ]+', '', filteredString)
-                            filteredString = filteredString.rstrip()   
-                            currentData.append(filteredString)
+                            filteredString = filteredString.strip('\n') 
+                            print filteredString  
+                            csvReviewFile.write(","+filteredString)
                         else:
-                            currentData.append(json_data[key])
-                    csvFileWriter.writerow(currentData)
+                            csvReviewFile.write(str(json_data[key]))
+                    csvReviewFile.write("\n")    
+                   # if currentData:
+                    #    csvReviewFile.write(currentData)
         csvReviewFile.close()    
     
 
@@ -154,7 +157,7 @@ businessId = naiveBayesObj.appendDataToCSV('F:\Courses\Bio Informatics\Project\d
 print len(businessId)
 businessId = businessId[:100]
 print businessId
-naiveBayesObj.outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json','F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv',businessId,['text','stars'])
+naiveBayesObj.outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json','F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.txt',businessId,['stars','text'])
 naiveBayesObj.formProbability('F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv')
 naiveBayesObj.naiveBayes()
 
