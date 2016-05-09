@@ -50,10 +50,10 @@ class naiveBayes:
                                     
                                 filteredString = ' '.join(filtered_word_list)
                                 filteredString = re.sub('[^A-Za-z ]+', '', filteredString)
+                            filteredString = filteredString.rstrip()   
                             currentData.append(filteredString)
                         else:
                             currentData.append(json_data[key])
-                    
                     csvFileWriter.writerow(currentData)
         csvReviewFile.close()    
     
@@ -62,17 +62,16 @@ class naiveBayes:
         with open(csvFile, "rb") as f:
             reader = csv.reader(f, delimiter="\t")
             for lines in reader:
-                self.countReviews += 1
                 line = lines[0].split(',')
                 wordList = line[0].split()
-                if(int(line[1])<3):
+                if(int(line[1])<4 & int(line[1]) > 0 ):
                     self.countNegReviews += 1
                     for word in wordList:
                         if self.negWordDict.has_key(word):
                             self.negWordDict[word] += 1
                         else:
                             self.negWordDict[word] = 1
-                else:
+                elif(int(line[1])>3 & int(line[1]) < 6):
                     self.countPosReviews += 1
                     for word in wordList:
                         if self.posWordDict.has_key(word):
@@ -89,21 +88,31 @@ class naiveBayes:
         totalCount = len(entireVoc)
         negWordCount = len(self.negWordDict)
         posWordCount = len(self.posWordDict)
-    
+                
+        print "Total Reviews: ",self.countReviews
+        print "Positive Reviews: ",self.countPosReviews
+        print "Negative Reviews: ",self.countNegReviews
+        print "Neg words: ",negWordCount
+        print "Pos words: ",posWordCount
+        print "Total words: ",totalCount
+        print "Pos Good: ",self.posWordDict['good']
+       # print "Neg Good: ",self.negWordDict['good']
         for key,value in self.negWordDict.iteritems():
             self.negWordProb[key] = (1 + value) / (negWordCount + totalCount)
         
         for key,value in self.posWordDict.iteritems():
             self.posWordProb[key] = (1 + value) / (posWordCount + totalCount)
-        print "Negative Probablity:\n", self.negWordProb
+        
+        #print "Negative Probablity:\n", self.negWordProb
         print "\n"
-        print "Positive Probablity:\n", self.posWordProb
+        #print "Positive Probablity:\n", self.posWordProb
     
 
 
     def findProbablity(self,review_input):
-        posProb = self.countPosReviews / self.countReviews
-        negProb = self.countNegReviews / self.countReviews
+        totalCount = self.countPosReviews + self.countNegReviews 
+        posProb = self.countPosReviews / totalCount
+        negProb = self.countNegReviews / totalCount
         posProbWord = posProb
         negProbWord = negProb
         filteredString = self.stringTok(review_input)
@@ -115,7 +124,7 @@ class naiveBayes:
                 negProbWord = negProbWord * self.negWordProb[word]
         
         print "Positive Prob word: ", posProbWord
-        print "Positive Neg word: ", negProbWord
+        print "Negative Prob word: ", negProbWord
         if(posProbWord > negProbWord):
             print "Positive Review"
         else:
@@ -148,5 +157,10 @@ print businessId
 naiveBayesObj.outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json','F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv',businessId,['text','stars'])
 naiveBayesObj.formProbability('F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv')
 naiveBayesObj.naiveBayes()
-var = raw_input("Enter the Review: ")
-naiveBayesObj.findProbablity (var)
+
+while(1):
+    var = raw_input("Enter the Review (Exit to quit): ")
+    if var.lower() == "exit":
+        break
+    naiveBayesObj.findProbablity (var)
+    
