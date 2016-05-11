@@ -11,7 +11,6 @@ def outputReviewsCSV(jsonFile, businessId):
             if json_data['business_id'] in businessId:
                 data = []
                 if (int(json_data['stars']) == 1):
-                    print json_data['text']
                     data.append(json_data['text'])
                     data.append('neg')
                     tupl = tuple(data)
@@ -24,7 +23,7 @@ def outputReviewsCSV(jsonFile, businessId):
                     currentData.append(tupl)
                     posReview = posReview +1
     jsonFile.close()
-    print "Neg: ",negReview," Pos: ",posReview
+    print "Neg: ",negReview," Pos: ",posReview,"\n"
     return currentData
 
 def appendDataToCSV(jsonFileToRead):
@@ -36,14 +35,24 @@ def appendDataToCSV(jsonFileToRead):
             if "food" in category.lower():
                 currentData.append(json_data['business_id'])
     return currentData
+    
+def split_list(a_list):
+    quarter = len(a_list)/4
+    threeQuarter = quarter *3
+    return a_list[:threeQuarter], a_list[quarter:]
   
 businessId = appendDataToCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_business.json')
 print len(businessId)
-businessId = businessId[:1000]
-train = outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json',businessId)
- 
+businessId = businessId[:100]
+trainList = outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json',businessId)
+
+train,test = split_list(trainList)
+print "sizeof Trainset: ",len(train)
+print "sizeof Testset: ",len(test)
 #print train
 cl = NaiveBayesClassifier(train)
+
+print c1.accuracy(test)
 
 print cl.classify("Their burgers are amazing") 
 print cl.classify("Pizza is very bad.") 
