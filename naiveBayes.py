@@ -1,3 +1,12 @@
+# File Name:  naiveBayes.py 
+# By: Pratibha, Praveen, Shivika, Ahsish 
+# Date: 5/19/2016
+# Python Version(s) 2.7.3: 
+""" FILE DESCRIPTION: 
+    The file takes review text and rating from Yelp data set, train the models 
+    using textblobber naive Bayes package, tests the test data with the model 
+    outputs the accuracy"""
+
 import ujson
 from textblob import TextBlob
 from textblob.classifiers import NaiveBayesClassifier
@@ -10,8 +19,26 @@ import sys
 class naiveBayes:
     def __init__(self):
         self.testSentences = []
+        
+       
+    def deriveBusinessId(self,jsonFileToRead):
+        """ DESCRIPTION: deriveBusinessId   Function to extract the business Id of the 'food' category 
+            PRECONDITIONS:  jsonFileToRead must be present in the directory.   
+            POSTCONDITIONS: Function outputs Business Id's for which  
+            SIDEEFFECTS:  
+            ERROR CONDITIONS: File not found error if input file not found  """ 
+        with open(jsonFileToRead, 'rb') as jsonFile:
+            #create a temp list to store results
+            currentData = []
+            for line in jsonFile:
+                json_data = ujson.loads(line)
+                category = ''.join(json_data['categories'])
+                if "food" in category.lower():
+                    currentData.append(json_data['business_id'])
+        return currentData
 
-    def outputReviewsCSV(self, jsonFile, businessId):
+    #Function to extract the review text and ratings from th json file
+    def getTrainData(self, jsonFile, businessId):
         currentData = []
         with open(jsonFile,'rb') as jsonFile:
             reviewCnt = 0
@@ -22,12 +49,13 @@ class naiveBayes:
                 print reviewCnt
                 filtered_word_list = []
                 word_list = json_data['text'].lower().split()
+                #code to 
                 for word in word_list: # iterate over word_list
                     if word not in stopwords.words('english'): 
                         filtered_word_list.append(word)
                 refined_text = " ".join(filtered_word_list)
                 if json_data['business_id'] in businessId and reviewCnt < 80000 :
-                      
+                    #considering only rating 1 and 5 which will give good results
                     if (int(json_data['stars']) == 1):
                         tupl = (refined_text,'neg')
                         currentData.append(tupl)
@@ -41,15 +69,7 @@ class naiveBayes:
                     break
         return currentData
 
-    def appendDataToCSV(self,jsonFileToRead):
-        with open(jsonFileToRead, 'rb') as jsonFile:
-            currentData = []
-            for line in jsonFile:
-                json_data = ujson.loads(line)
-                category = ''.join(json_data['categories'])
-                if "food" in category.lower():
-                    currentData.append(json_data['business_id'])
-        return currentData
+    
 
     def testSentence(self,sentence,classifier):
         filtered_word_list = [word for word in sentence.lower().split() if word not in stopwords.words('english')]
@@ -58,6 +78,11 @@ class naiveBayes:
         return blob.classify()
     
     def calcAccuracy(self,fileName= "naiveBayesResult.txt"):
+        """ DESCRIPTION: calcAccuracy   Function to accuracy of the naive bayes model 
+            PRECONDITIONS:  jsonFileToRead must be present in the directory.   
+            POSTCONDITIONS: Function outputs Business Id's for which  
+            SIDEEFFECTS:  
+            ERROR CONDITIONS: File not found error if input file not found  """ 
         wrong1predicted, wrong2predicted, wrong3predicted = (0,)*3
         wrong4predicted, wrong5predicted = (0,) *2
         total1, total2, total3, total4, total5 = (0,)*5 
@@ -102,10 +127,10 @@ class naiveBayes:
 
 def main(argv=0):
     nBObj = naiveBayes()
-    businessId = nBObj.appendDataToCSV('yelp_academic_dataset_business.json')
+    businessId = nBObj.deriveBusinessId('yelp_academic_dataset_business.json')
     print len(businessId)
-    businessId = businessId[:200]
-    train = nBObj.outputReviewsCSV('yelp_academic_dataset_review.json',businessId)
+    businessId = businessId[:10]
+    train = nBObj.getTrainData('yelp_academic_dataset_review.json',businessId)
  
     print train
     cl = NaiveBayesClassifier(train)
