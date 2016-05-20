@@ -5,7 +5,7 @@ from nltk.corpus import stopwords
 import re
 import sys
 
-class naiveBayes:
+class naiveBayesImpl:
     stopset = set(stopwords.words('english'))
 
     def __init__(self):
@@ -136,10 +136,6 @@ class naiveBayes:
         
     
     def appendDataToCSV(self,jsonFileToRead):
-    #def appendDataToCSV(csvFile,jsonFileToRead,dataTitles):
-        #csvReviewFile = open(csvFile, 'a+')
-        #csvFileWriter = csv.writer(csvReviewFile)
-        #csvFileWriter.writerow(dataTitles)
         with open(jsonFileToRead, 'rb') as jsonFile:
             currentData = []
             for line in jsonFile:
@@ -147,30 +143,27 @@ class naiveBayes:
                 category = ''.join(json_data['categories'])
                 if "food" in category.lower():
                     currentData.append(json_data['business_id'])
-                    #currentData.append(json_data['categories'])
-                    #csvFileWriter.writerow(currentData)
-                    #json_data['business_id']
-        #csvReviewFile.close()
+                 
         return currentData
  
-    def main(argv=0):
-        if (argv == 0):
-            print "please enter the file name to read"
-        naiveBayesObj = naiveBayes()
-        businessId = naiveBayesObj.appendDataToCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_business.json')
-        print len(businessId)
-        businessId = businessId[:100]
-        print businessId
-        naiveBayesObj.outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json','F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.txt',businessId,['stars','text'])
-        naiveBayesObj.formProbability('F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv')
-        naiveBayesObj.naiveBayes()
+def main(argv=0):
+    if (argv == 0):
+        print "please enter the file name to read"
+    naiveBayesObj = naiveBayesImpl()
+    businessId = naiveBayesObj.appendDataToCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_business.json')
+    print len(businessId)
+    businessId = businessId[:100]
+    print businessId
+    naiveBayesObj.outputReviewsCSV('F:\Courses\Bio Informatics\Project\dataset\yelp_academic_dataset_review.json','F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.txt',businessId,['stars','text'])
+    naiveBayesObj.formProbability('F:\Courses\Bio Informatics\Project\dataset\yelp_Review_CSV.csv')
+    naiveBayesObj.naiveBayes()
 
-        while(1):
-            var = raw_input("Enter the Review (Exit to quit): ")
-            if var.lower() == "exit":
-                break
-            naiveBayesObj.findProbablity (var)
+    while(1):
+        var = raw_input("Enter the Review (Exit to quit): ")
+        if var.lower() == "exit":
+            break
+        naiveBayesObj.findProbablity (var)
     
 
-    if __name__ == "__main__":
-        main(sys.argv)
+if __name__ == "__main__":
+    main(sys.argv)

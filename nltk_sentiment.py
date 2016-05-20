@@ -16,11 +16,8 @@ def plotGraph(posScore,negScore,poslabel,neglabel,title):
     index = np.arange(len(posScore))
     bar_width = 0.35
     opacity = 0.8
- 
     mplot.bar(index, posScore, bar_width,alpha=opacity,color='b',label=poslabel)
- 
     mplot.bar(index + bar_width, negScore, bar_width,alpha=opacity,color='g',label=neglabel)
- 
     mplot.xlabel('Reviews')
     mplot.ylabel('Scores')
     mplot.title(title)
